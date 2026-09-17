@@ -49,7 +49,7 @@ export function AboutSection() {
         <div className="grid md:grid-cols-3 gap-8 mb-32">
           {[
             { number: "20+", label: "年制造经验", detail: "持续创新与完善" },
-            { number: "15+", label: "外观专利", detail: "自主研发成果" },
+            { number: "30+", label: "外观专利", detail: "自主研发成果" },
             { number: "100+", label: "知名品牌", detail: "全球合作伙伴" },
           ].map((item, idx) => (
             <div
@@ -120,7 +120,7 @@ export function AboutSection() {
             {[
               { cert: "ISO 9001", text: "质量管理体系认证" },
               { cert: "BSCI", text: "商业责任认证" },
-              { cert: "15+", text: "外观设计专利" },
+              { cert: "30+", text: "外观设计专利" },
             ].map((item) => (
               <div key={item.cert} className="bg-background p-8 text-center hover:bg-accent/5 transition-colors">
                 <div className="text-sm tracking-widest font-bold text-accent mb-3">{item.cert}</div>
