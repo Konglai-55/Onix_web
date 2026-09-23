@@ -228,6 +228,7 @@ async function signedObjectRequest(
     method,
     headers,
     body: body.length > 0 && method !== "GET" ? body : undefined,
+    signal: method === "GET" ? AbortSignal.timeout(1_500) : undefined,
   });
 }
 

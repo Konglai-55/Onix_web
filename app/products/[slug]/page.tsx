@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getProductBySlug, getProducts } from "@/lib/products";
+import { getProductBySlug } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
@@ -16,13 +16,6 @@ type ProductDetailPageProps = {
     slug: string;
   }>;
 };
-
-export async function generateStaticParams() {
-  const products = await getProducts();
-  return products.map((product) => ({
-    slug: product.slug,
-  }));
-}
 
 export async function generateMetadata({
   params,

@@ -28,6 +28,7 @@ const productsFile = process.env.PRODUCTS_FILE
   ? path.resolve(process.env.PRODUCTS_FILE)
   : path.join(process.cwd(), "data", "products.json");
 let mutationQueue: Promise<unknown> = Promise.resolve();
+let storageRetryAt = 0;
 
 function normalizeProducts(value: unknown): Product[] {
   if (!Array.isArray(value)) {
@@ -66,14 +67,29 @@ function normalizeProducts(value: unknown): Product[] {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  try {
-    const content = await readProductsData();
-    if (content !== null) return normalizeProducts(JSON.parse(content));
+  let seedStorage = false;
+  if (Date.now() >= storageRetryAt) {
+    try {
+      const content = await readProductsData();
+      if (content !== null) return normalizeProducts(JSON.parse(content));
+      seedStorage = true;
+    } catch (error) {
+      // ponytail: Retry storage once a minute; use a shared cache if one process becomes many.
+      storageRetryAt = Date.now() + 60_000;
+      console.warn("RainS3 商品读取失败，暂用本地副本：", error instanceof Error ? error.message : error);
+    }
+  }
 
+  try {
     const localContent = await readFile(productsFile, "utf8");
     const products = normalizeProducts(JSON.parse(localContent));
-    if (products.length > 0) {
-      await writeProductsData(`${JSON.stringify(products, null, 2)}\n`);
+    if (seedStorage && products.length > 0) {
+      try {
+        await writeProductsData(`${JSON.stringify(products, null, 2)}\n`);
+      } catch (error) {
+        storageRetryAt = Date.now() + 60_000;
+        console.warn("RainS3 商品初始化失败，继续使用本地副本：", error instanceof Error ? error.message : error);
+      }
     }
     return products;
   } catch (error) {
